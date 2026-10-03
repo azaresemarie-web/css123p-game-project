@@ -15,7 +15,7 @@ public class Main {
         JFrame window = new JFrame();
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
-        window.setTitle("2D Game Project");
+        window.setTitle("Formula Hero");
 
         // Create Chloe's Game Engine Panel
         GamePanel gamePanel = new GamePanel(); 
