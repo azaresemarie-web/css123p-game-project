@@ -31,6 +31,10 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;   // 960 px
     public final int screenHeight = tileSize * maxScreenRow;  // 640 px
 
+    // ! Audio Subsystems (Separate instances so SFX never interrupts background music)
+    public SoundEffects music = new SoundEffects();
+    public SoundEffects se = new SoundEffects();
+    
     // Engine Systems & Managers
     KeyHandler keyH = new KeyHandler();
     TileManager tileM = new TileManager(this);
@@ -46,8 +50,52 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.setFocusable(true);
         this.addKeyListener(keyH);
+        
+        //bg theme on loop
+        playMusic(0);
+    }
+    
+    // ==========================================
+    // AUDIO CONTROLLER METHODS
+    // ==========================================
+    
+    public void playMusic(int i) {
+        music.setFile(i);
+        music.play();
+        music.loop();
     }
 
+    public void stopMusic() {
+        music.stop();
+    }
+
+    public void playSE(int i) {
+        se.setFile(i);
+        se.play();
+    }
+    
+    public void stopSE() {
+        se.stop();
+    }
+    
+    // Called when an answer is submitted as CORRECT
+    public void playRightAnswer() {
+        stopSE();     // Cut off any timer tick sound first
+        playSE(1);    // Play right.wav chime
+    }
+
+    // Called when an answer is WRONG or when time expires
+    public void playWrongAnswer() {
+        stopSE();     // Cut off any timer tick sound first
+        playSE(2);    // Play wrong.wav buzzer
+    }
+
+    // Called every second during a question countdown
+    public void playTimerTick() {
+        playSE(3);    // Play timer.wav
+    }
+    
+    
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
