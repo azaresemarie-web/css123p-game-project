@@ -32,6 +32,9 @@ public class SoundEffects {
 
         // Index 3: Timer tick / warning sound (during the 5-second countdown)
         soundURL[3] = getClass().getResource("/sound/timer.wav");
+        
+        // Index 4: Key pickup ring
+        soundURL[4] = getClass().getResource("/sound/ring.wav");
     }
 
     // Opens and prepares the chosen audio file

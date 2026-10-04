@@ -6,11 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import player.Player;
 import tile.DoorKey;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 public class MathDialog extends JDialog {
     private int timeRemaining;
@@ -18,55 +13,23 @@ public class MathDialog extends JDialog {
     private MathLogic.Question currentQuestion;
     private final GamePanel gp;
 
-    // Assets
-    private BufferedImage bgImage;
-    private ImageIcon submitIcon;
-    private ImageIcon resetIcon;
-
-    // UI Components
-    private JLabel timerLabel;
-    private JLabel questionLabel;
-    private JTextField answerField;
-    private JLabel feedbackLabel;
-
-    // Expanded Window Dimensions
-    private static final int DIALOG_WIDTH = 650;
-    private static final int DIALOG_HEIGHT = 450;
-
     public MathDialog(JFrame parentFrame, GamePanel gp, DoorKey doorKey, Player player, int targetRow, int targetCol, int currentLevel) {
         super(parentFrame, "Door Lock Puzzle", true);
         this.gp = gp;
 
-        // 1. Load Math Question
         MathLogic logic = new MathLogic();
         currentQuestion = logic.getRandomQuestion(currentLevel);
         timeRemaining = currentQuestion.timeLimitSeconds;
 
-        // 2. Load Button Assets with Proportional Scaling
-        loadAssets(150, 55);
-
-        // 3. Configure Dialog Window
-        setUndecorated(true);
-        setBackground(new Color(0, 0, 0, 0)); // Transparent around rounded pixel border
-        setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
+        setSize(400, 250);
         setLocationRelativeTo(parentFrame);
+        setLayout(new GridLayout(4, 1, 10, 10));
 
-        // 4. Main Panel
-        JPanel mainPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (bgImage != null) {
-                    g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), null);
-                } else {
-                    g.setColor(new Color(60, 30, 15));
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                }
-            }
-        };
-        mainPanel.setOpaque(false);
-        mainPanel.setLayout(null);
+        JLabel timerLabel = new JLabel("Time Remaining: " + timeRemaining + "s", SwingConstants.CENTER);
+        timerLabel.setForeground(Color.RED);
+        timerLabel.setFont(new Font("Arial", Font.BOLD, 16));
 
+<<<<<<< HEAD
         // --- Custom Visible Exit ("X") Button ---
         JButton closeButton = new JButton("X");
         closeButton.setFont(new Font("Krungthep", Font.BOLD, 20));
@@ -107,129 +70,63 @@ public class MathDialog extends JDialog {
         feedbackLabel.setForeground(new Color(200, 30, 30));
         feedbackLabel.setBounds(60, 230, DIALOG_WIDTH - 120, 30);
         mainPanel.add(feedbackLabel);
+=======
+        JLabel questionLabel = new JLabel(currentQuestion.text, SwingConstants.CENTER);
+        questionLabel.setFont(new Font("Arial", Font.BOLD, 18));
 
-        // --- SUBMIT Button ---
-        JButton submitButton = new JButton();
-        if (submitIcon != null) {
-            submitButton.setIcon(submitIcon);
-        } else {
-            submitButton.setText("SUBMIT");
-        }
-        styleImageButton(submitButton);
-        submitButton.setBounds((DIALOG_WIDTH / 2) - 165, 285, 150, 55);
-        mainPanel.add(submitButton);
+        JTextField answerField = new JTextField();
+        answerField.setHorizontalAlignment(JTextField.CENTER);
+        answerField.setFont(new Font("Arial", Font.PLAIN, 18));
 
-        // --- RESET Button ---
-        JButton resetButton = new JButton();
-        if (resetIcon != null) {
-            resetButton.setIcon(resetIcon);
-        } else {
-            resetButton.setText("RESET");
-        }
-        styleImageButton(resetButton);
-        resetButton.setBounds((DIALOG_WIDTH / 2) + 15, 285, 150, 55);
-        mainPanel.add(resetButton);
+        JButton submitButton = new JButton("Submit Answer");
+>>>>>>> 43dd43701b13b4ea0b517c3661d4a872f45fe4df
 
-        add(mainPanel);
+        add(timerLabel);
+        add(questionLabel);
+        add(answerField);
+        add(submitButton);
 
-        // 5. Timer Logic
         countdownTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 timeRemaining--;
-                timerLabel.setText("Time: " + timeRemaining + "s");
+                timerLabel.setText("Time Remaining: " + timeRemaining + "s");
 
+                // Tick sound during last 5 seconds
                 if (timeRemaining <= 5 && timeRemaining > 0) {
                     gp.playTimerTick();
                 }
 
                 if (timeRemaining <= 0) {
-                    processFailure(player, "Time Expired! Aurelia lost 1 life.");
+                    processFailure(player);
                 }
             }
         });
         countdownTimer.start();
 
-        // 6. Event Handlers
-        submitButton.addActionListener(e -> checkAnswer(doorKey, player, targetRow, targetCol));
-        answerField.addActionListener(e -> checkAnswer(doorKey, player, targetRow, targetCol));
+        submitButton.addActionListener(e -> {
+            String input = answerField.getText().replaceAll("\\s+", "").toLowerCase();
+            String correct = currentQuestion.answer.replaceAll("\\s+", "").toLowerCase();
 
-        resetButton.addActionListener(e -> {
-            answerField.setText("");
-            answerField.requestFocus();
-        });
-
-        // Close when pressing ESC
-        answerField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    closeDialog();
-                }
+            if (input.equals(correct)) {
+                countdownTimer.stop();
+                gp.playRightAnswer(); // Play success chime
+                doorKey.unlockDoor(targetRow, targetCol);
+                dispose();
+            } else {
+                processFailure(player);
             }
         });
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     }
 
-    private void checkAnswer(DoorKey doorKey, Player player, int targetRow, int targetCol) {
-        String input = answerField.getText().replaceAll("\\s+", "").toLowerCase();
-        String correct = currentQuestion.answer.replaceAll("\\s+", "").toLowerCase();
-
-        if (input.equals(correct)) {
-            countdownTimer.stop();
-            gp.playRightAnswer();
-            doorKey.unlockDoor(targetRow, targetCol);
-            dispose();
-        } else {
-            processFailure(player, "Incorrect answer! Aurelia lost 1 life.");
-        }
-    }
-
-    private void loadAssets(int btnWidth, int btnHeight) {
-        try {
-            bgImage = ImageIO.read(getClass().getResourceAsStream("/buttons/mathPanel.png"));
-
-            BufferedImage submitImg = ImageIO.read(getClass().getResourceAsStream("/buttons/submitBtn.png"));
-            if (submitImg != null) {
-                Image scaled = submitImg.getScaledInstance(btnWidth, btnHeight, Image.SCALE_SMOOTH);
-                submitIcon = new ImageIcon(scaled);
-            }
-
-            BufferedImage resetImg = ImageIO.read(getClass().getResourceAsStream("/buttons/resetBtn.png"));
-            if (resetImg != null) {
-                Image scaled = resetImg.getScaledInstance(btnWidth, btnHeight, Image.SCALE_SMOOTH);
-                resetIcon = new ImageIcon(scaled);
-            }
-
-        } catch (IOException | IllegalArgumentException e) {
-            System.err.println("Note: Check asset paths inside /buttons/ directory.");
-        }
-    }
-
-    private void styleImageButton(JButton btn) {
-        btn.setContentAreaFilled(false);
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    }
-
-    private void processFailure(Player player, String errorMessage) {
+    private void processFailure(Player player) {
         countdownTimer.stop();
-        gp.playWrongAnswer();
-
-        feedbackLabel.setText(errorMessage);
-        answerField.setEnabled(false);
-
-        Timer delayTimer = new Timer(1500, e -> dispose());
-        delayTimer.setRepeats(false);
-        delayTimer.start();
-    }
-
-    private void closeDialog() {
-        if (countdownTimer != null) {
-            countdownTimer.stop();
-        }
+        gp.playWrongAnswer(); // Play buzzer
+        gp.loseHeart();
+        // If player has health logic, reduce life here (e.g., player.life--)
+        JOptionPane.showMessageDialog(this, "Incorrect or Time Expired! Aurelia lost 1 life.", "Failed", JOptionPane.ERROR_MESSAGE);
         dispose();
     }
 }

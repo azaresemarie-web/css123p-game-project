@@ -41,6 +41,8 @@ private static final int WATER_GID = 1751;
 
             // Level 1 "Walls", Level 2 "Wall2.1" + "Walls2", Level 3 "Walls3" + "Walls3_underwater"
             if (name.startsWith("wall")) return true;
+            
+            if (name.startsWith("object")) return true;
 
             // Water (Level 2 and Level 3)
             if (gid == WATER_GID) return true;

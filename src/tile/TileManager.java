@@ -39,6 +39,21 @@ public class TileManager {
     private List<int[][]> layers = new ArrayList<>();
     private int currentLevel = 0;
     
+    private static final String[] LEVEL_FILES = {
+    "resources/complete_map/level1.tmx",
+    "resources/complete_map/Level2.tmx",
+    "resources/complete_map/Level3.tmx"
+    };
+
+    public int getLevelCount() {
+        return LEVEL_FILES.length;
+    }
+
+    public void loadLevel(int level) {
+        currentLevel = level;
+        loadTmx(LEVEL_FILES[level]);
+    }
+    
     public TileManager(GamePanel gp) {
         this.gp = gp;
         
@@ -46,7 +61,7 @@ public class TileManager {
         loadTmx("resources/complete_map/level1.tmx");
     }
 
-    public void loadTmx(String tmxFilePath) {
+    public synchronized void loadTmx(String tmxFilePath) {
         try {
             File fXmlFile = new File(tmxFilePath);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -61,6 +76,13 @@ public class TileManager {
             this.tileWidth = Integer.parseInt(mapElement.getAttribute("tilewidth"));
             this.tileHeight = Integer.parseInt(mapElement.getAttribute("tileheight"));
 
+            tilesetNames.clear();
+            tilesetFirstGids.clear();
+            tilesetImages.clear();
+            tilesetColumns.clear();
+            layerNames.clear();
+            layers.clear();
+            
             // 2. Parse Tilesets
             NodeList tilesetNodes = doc.getElementsByTagName("tileset");
             for (int i = 0; i < tilesetNodes.getLength(); i++) {
@@ -153,7 +175,7 @@ public class TileManager {
     /**
      * Draws all layers and tiles onto the screen panel.
      */
-    public void draw(Graphics2D g2) {
+    public synchronized void draw(Graphics2D g2) {
         // Loop through every layer in the map
         for (int[][] layerGrid : layers) {
             for (int row = 0; row < mapHeight; row++) {

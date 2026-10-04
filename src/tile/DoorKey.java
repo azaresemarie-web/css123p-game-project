@@ -1,9 +1,5 @@
 package tile;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import main.GamePanel;
@@ -14,15 +10,16 @@ public class DoorKey {
     GamePanel gp;
     public int keysCollected = 0;
 
-    // Detection flag to draw the floating prompt
-    public boolean playerNearDoor = false;
-    private int[] currentNearbyDoor = null;
-    
+    // GIDs from level1.tmx (Tiled). Update these if other levels use different tiles.
     private static final int KEY_GID = 5693;
     private static final int[] DOOR_GIDS = {812, 813, 829, 830, 846, 847};
+
+    // Set to true if the player must hold a key before the Math Panel opens
     private static final boolean REQUIRE_KEY = false;
+
+    // How many pixels away from a door still counts as "near"
     private static final int REACH = 10;
-    private static final int HITBOX_INSET = 8;
+    private static final int HITBOX_INSET = 8; // same as CollisionDetection
 
     public DoorKey(GamePanel gp) {
         this.gp = gp;
@@ -35,23 +32,12 @@ public class DoorKey {
         return false;
     }
 
+    // Finds the "DoorKey" layer by name instead of hard-coding index 1
     private int getDoorLayer() {
         for (int i = 0; i < gp.tileM.getLayerCount(); i++) {
             if (gp.tileM.getLayerName(i).toLowerCase().startsWith("doorkey")) return i;
         }
         return -1;
-    }
-
-    public void update(Player player) {
-        attemptKeyPickup(player);
-        
-        currentNearbyDoor = findNearbyDoor(player);
-        playerNearDoor = (currentNearbyDoor != null);
-        
-        if (playerNearDoor && gp.keyH.ePressed) {
-            gp.keyH.ePressed = false; // Reset key
-            interact(player, currentNearbyDoor);
-        }
     }
 
     public void attemptKeyPickup(Player player) {
@@ -64,10 +50,12 @@ public class DoorKey {
         if (gp.tileM.getGid(layer, row, col) == KEY_GID) {
             keysCollected++;
             gp.tileM.setGid(layer, row, col, 0);
-            gp.playRightAnswer();
+            System.out.println("Key Picked Up! Total: " + keysCollected);
+            gp.playKeyPickup();          
         }
     }
 
+    // Returns {row, col} of a door tile touching/near the player, or null if none
     public int[] findNearbyDoor(Player player) {
         int layer = getDoorLayer();
         if (layer < 0) return null;
@@ -88,42 +76,24 @@ public class DoorKey {
         return null;
     }
 
+    // Opens the Math Panel for the given door
     public void interact(Player player, int[] door) {
         if (REQUIRE_KEY && keysCollected <= 0) {
-            gp.playWrongAnswer();
+            System.out.println("Locked. You need a key!");
             return;
         }
         JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(gp);
         MathDialog puzzleWindow = new MathDialog(parentFrame, gp, this, player,
-                door[0], door[1], gp.tileM.getCurrentLevel());
-        puzzleWindow.setVisible(true);
+        door[0], door[1], gp.tileM.getCurrentLevel());
+        puzzleWindow.setVisible(true); // modal: returns after the dialog closes
     }
 
-    public void draw(Graphics2D g2) {
-        if (playerNearDoor && currentNearbyDoor != null) {
-            int doorX = currentNearbyDoor[1] * gp.tileSize;
-            int doorY = currentNearbyDoor[0] * gp.tileSize;
-
-            String prompt = "E to Enter";
-            g2.setFont(new Font("Monospaced", Font.BOLD, 13));
-            FontMetrics fm = g2.getFontMetrics();
-            int promptX = doorX + (gp.tileSize / 2) - (fm.stringWidth(prompt) / 2);
-            int promptY = doorY - 8;
-
-            // Black outline / shadow
-            g2.setColor(Color.BLACK);
-            g2.drawString(prompt, promptX + 1, promptY + 1);
-
-            // Retro golden yellow text
-            g2.setColor(new Color(255, 245, 170));
-            g2.drawString(prompt, promptX, promptY);
-        }
-    }
-    
+    // Called by MathDialog on a correct answer. Removes the WHOLE door (it is 2x3 tiles).
     public void unlockDoor(int targetRow, int targetCol) {
         int layer = getDoorLayer();
         if (layer >= 0) removeDoorTiles(layer, targetRow, targetCol);
         if (keysCollected > 0) keysCollected--;
+        System.out.println("Door unlocked.");
     }
 
     private void removeDoorTiles(int layer, int row, int col) {
