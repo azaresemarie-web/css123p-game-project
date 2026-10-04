@@ -15,6 +15,13 @@ public class KeyHandler implements KeyListener{
 
     public boolean upPressed, downPressed, rightPressed, leftPressed;
     public boolean ePressed;
+    public int levelRequest = -1;  
+    
+    
+    public void resetKeys() {
+        upPressed = downPressed = leftPressed = rightPressed = false;
+        ePressed = false;
+    }
     
     @Override
     public void keyTyped(KeyEvent e) {
@@ -38,6 +45,10 @@ public class KeyHandler implements KeyListener{
             rightPressed = true;
         }
         if (code == KeyEvent.VK_E) ePressed = true;
+        
+        if (code == KeyEvent.VK_1) levelRequest = 0;
+        if (code == KeyEvent.VK_2) levelRequest = 1;
+        if (code == KeyEvent.VK_3) levelRequest = 2;
     }
 
     @Override
