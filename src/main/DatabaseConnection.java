@@ -1,4 +1,4 @@
-package main;
+/* package main;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -81,3 +81,4 @@ public class DatabaseConnection {
         }
     }
 }
+*/
