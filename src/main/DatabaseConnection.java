@@ -71,10 +71,10 @@ public class DatabaseConnection {
             for (String query : setupQueries) {
                 stmt.executeUpdate(query);
             }
-            System.out.println("Database and tables initialized successfully.");
+            System.out.println("Database initialized successfully.");
 
         } catch (SQLException e) {
-            System.err.println("Database initialization failed. Is XAMPP MySQL running?");
+            System.err.println("Database initialization failed.");
             e.printStackTrace();
         }
     }
