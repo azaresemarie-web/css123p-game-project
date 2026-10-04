@@ -1,9 +1,12 @@
 
+package main;
+
 import javax.swing.JPanel;
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -15,7 +18,7 @@ import java.awt.Graphics2D;
  */
 public class GamePanel extends JPanel implements Runnable {
 
-    // 1. TILE & SCREEN SETTINGS (16x16 scaled 2x = 32x32 px per tile)
+   // 1. TILE & SCREEN SETTINGS (16x16 scaled 2x = 32x32 px per tile)
     final int originalTileSize = 16;
     final int scale = 2;
     public final int tileSize = originalTileSize * scale; // 32x32 pixels
