@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import player.Player;
 import tile.TileManager;
+import tile.DoorKey;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -37,11 +38,13 @@ public class GamePanel extends JPanel implements Runnable {
     public SoundEffects se = new SoundEffects();
     
     // Engine Systems & Managers
-    KeyHandler keyH = new KeyHandler();
-    TileManager tileM = new TileManager(this);
+    public KeyHandler keyH = new KeyHandler();
+    public TileManager tileM = new TileManager(this);
     Player player = new Player(this, keyH);
     Camera camera = new Camera(this);
     UIButtons uiButtons;
+    public CollisionDetection cChecker = new CollisionDetection(this);
+    public DoorKey doorKey = new DoorKey(this);
     
     // 2. ENGINE SYSTEM
     int FPS = 60;
@@ -141,6 +144,11 @@ public class GamePanel extends JPanel implements Runnable {
         // If your TileManager has animated water tiles, update them here if needed:
         // tileM.update();
         
+        //check key
+        if (doorKey != null && player != null) {
+            doorKey.update(player);
+        }
+        
         //CAMERA LOCK
         if (camera != null) {
             camera.update();
@@ -169,6 +177,10 @@ public class GamePanel extends JPanel implements Runnable {
             player.draw(g2);
         }
         
+        //e
+        if (doorKey != null) {
+            doorKey.draw(g2);
+        }
         //reset camera
         if (camera != null) {
             camera.reset(g2);
