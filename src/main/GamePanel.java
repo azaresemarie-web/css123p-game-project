@@ -39,6 +39,7 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyH = new KeyHandler();
     TileManager tileM = new TileManager(this);
     Player player = new Player(this, keyH);
+    Camera camera = new Camera(this);
 
     // 2. ENGINE SYSTEM
     int FPS = 60;
@@ -107,10 +108,12 @@ public class GamePanel extends JPanel implements Runnable {
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
+        long timer = 0;
 
         while (gameThread != null) {
             currentTime = System.nanoTime();
             delta += (currentTime - lastTime) / drawInterval;
+            timer += (currentTime - lastTime);
             lastTime = currentTime;
 
             if (delta >= 1) {
@@ -123,10 +126,17 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         // Update player position and animations
-        player.update();
+       if (player != null) {
+            player.update();
+        }
         
         // If your TileManager has animated water tiles, update them here if needed:
         // tileM.update();
+        
+        //CAMERA LOCK
+        if (camera != null) {
+            camera.update();
+        }
     }
 
     @Override
@@ -134,6 +144,11 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
+        //camera zoom & centering
+        if (camera != null) {
+            camera.apply(g2);
+        }
+        
         // 1. Draw the TileManager map (floors, decorative cracks, walls, water) first
         if (tileM != null) {
             tileM.draw(g2);
@@ -145,7 +160,16 @@ public class GamePanel extends JPanel implements Runnable {
         if (player != null) {
             player.draw(g2);
         }
-
+        
+        //reset camera
+        if (camera != null) {
+            camera.reset(g2);
+        }
+        
+        if (camera != null) {
+            camera.drawLighting(g2);
+        }
+        
         g2.dispose();
     }
 }
