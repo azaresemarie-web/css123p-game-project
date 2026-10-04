@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import player.Player;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -34,6 +35,8 @@ public class GamePanel extends JPanel implements Runnable {
     int playerY = 100;  
     int playerSpeed = 1;
     
+    Player player = new Player(this, keyH);
+
     // 2. ENGINE SYSTEM
     int FPS = 60;
     Thread gameThread;
