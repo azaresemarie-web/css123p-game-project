@@ -35,8 +35,10 @@ public class TileManager {
     private List<Integer> tilesetColumns = new ArrayList<>();
 
     // Layers data (stores the grid of GIDs for each map layer)
+    private List<String> layerNames = new ArrayList<>();
     private List<int[][]> layers = new ArrayList<>();
-
+    private int currentLevel = 0;
+    
     public TileManager(GamePanel gp) {
         this.gp = gp;
         
@@ -84,10 +86,13 @@ public class TileManager {
             NodeList layerNodes = doc.getElementsByTagName("layer");
             for (int i = 0; i < layerNodes.getLength(); i++) {
                 Element layerElement = (Element) layerNodes.item(i);
+                String layerName = layerElement.getAttribute("name");
                 Element dataElement = (Element) layerElement.getElementsByTagName("data").item(0);
                 
                 String csvData = dataElement.getTextContent().trim();
                 int[][] layerGrid = parseCsvData(csvData, mapWidth, mapHeight);
+                
+                layerNames.add(layerName);
                 layers.add(layerGrid);
             }
 
@@ -168,5 +173,43 @@ public class TileManager {
                 }
             }
         }
+    }
+    // =========================================================================
+    // HELPER METHODS REQUIRED BY DoorKey.java & CollisionDetection.java
+    // =========================================================================
+
+    public int getLayerCount() {
+        return layers.size();
+    }
+
+    public String getLayerName(int layerIndex) {
+        if (layerIndex >= 0 && layerIndex < layerNames.size()) {
+            return layerNames.get(layerIndex);
+        }
+        return "";
+    }
+
+    public int getGid(int layer, int row, int col) {
+        if (layer < 0 || layer >= layers.size()) return 0;
+        int[][] grid = layers.get(layer);
+        if (row < 0 || row >= mapHeight || col < 0 || col >= mapWidth) return 0;
+        return grid[row][col];
+    }
+
+    public void setGid(int layer, int row, int col, int gid) {
+        if (layer >= 0 && layer < layers.size()) {
+            int[][] grid = layers.get(layer);
+            if (row >= 0 && row < mapHeight && col >= 0 && col < mapWidth) {
+                grid[row][col] = gid;
+            }
+        }
+    }
+
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+
+    public void setCurrentLevel(int level) {
+        this.currentLevel = level;
     }
 }
