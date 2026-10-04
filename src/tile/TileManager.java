@@ -1,179 +1,172 @@
 
 package tile;
 
+import main.GamePanel;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import javax.imageio.ImageIO;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import main.GamePanel;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Vincent
  */
+
 public class TileManager {
-  
-    private final int tileSize = 48;
-    private final int maxScreenCol = 30;
-    private final int maxScreenRow = 20;
+    GamePanel gp;
     
-    private Tile[] tiles;
-    private int [][][] levelMaps;
-    private int currentLevel = 0;
+    // Map dimensions and tile sizes
+    private int mapWidth;
+    private int mapHeight;
+    private int tileWidth;
+    private int tileHeight;
     
-    public TileManager(GamePanel gp){
+    // Parallel lists for tileset properties
+    private List<String> tilesetNames = new ArrayList<>();
+    private List<Integer> tilesetFirstGids = new ArrayList<>();
+    private List<BufferedImage> tilesetImages = new ArrayList<>();
+    private List<Integer> tilesetColumns = new ArrayList<>();
 
-        tiles = new Tile[10];
-        loadTileImages();
-        initializeLevelMaps();
-    }
+    // Layers data (stores the grid of GIDs for each map layer)
+    private List<int[][]> layers = new ArrayList<>();
 
-    private void loadTileImages() {
-        try{
-            BufferedImage mainTilesetImg = ImageIO.read(getClass().getResourceAsStream("/complete_map/walls_floor.png"));
-            BufferedImage objectsImg = ImageIO.read(getClass().getResourceAsStream("/complete_map/Objects.png"));
-            
-            //floor
-            tiles[0] = new Tile(mainTilesetImg.getSubimage(0, 96, 16, 16), false);
-            //walls
-            tiles[1] = new Tile(mainTilesetImg.getSubimage(0, 0, 16, 16), true);
-            //key
-            tiles[2] = new Tile(objectsImg.getSubimage(0, 0, 16, 16), false);
-            //door
-            tiles[3] = new Tile(mainTilesetImg.getSubimage(64, 336, 16, 16), false);
-            //object
-            tiles[4] = new Tile(objectsImg.getSubimage(64, 0, 16, 16), true);
-            
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        }
-        catch(IllegalArgumentException e){
-            System.err.println("Error");
-            e.printStackTrace();
-        }
-    }
-
-    private void initializeLevelMaps() {
-        levelMaps = new int[4][maxScreenRow][maxScreenCol];
-        //level 1
-        levelMaps[0] = new int[][]{
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 2, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 4, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
-            {1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1},
-            {1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1},
-            {1, 0, 1, 1, 1, 1, 1, 0, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1},
-            {1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1},
-            {1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1},
-            {1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 3, 1},
-            {1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-        };
-        //level 2
-        levelMaps[1] = new int[][]{
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 4, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 4, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 4, 4, 0, 1, 0, 0, 1, 1, 3, 1, 1, 0, 1},
-            {1, 0, 0, 1, 0, 1, 4, 4, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 1, 1, 1, 0, 2, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 3, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 0, 0, 0, 0, 0, 0, 4, 4, 1},
-            {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 4, 4, 1},
-            {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 4, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1},
-            {1, 0, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1},
-            {1, 4, 4, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-            {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-        };
-        //level 3
-        levelMaps[2] = new int[][]{
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1},
-            {1, 1, 1, 0, 0, 0, 0, 1, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1},
-            {1, 1, 1, 0, 0, 0, 0, 0, 4, 2, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1},
-            {1, 1, 1, 0, 0, 0, 0, 4, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 4, 1, 1},
-            {1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 2, 1, 1},
-            {1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-            {1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 3, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 4, 1, 1},
-            {1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 4, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 4, 4, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 4, 0, 0, 0, 0, 0, 0, 0, 1, 1, 4, 1, 1, 4, 1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 4, 4, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1},
-            {1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 2, 1, 1, 1, 1},
-            {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-        };
-        //chamber
-        levelMaps[3] = new int[][]{
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 4, 1, 0, 1, 1, 4, 0, 0, 1, 0, 3, 0, 0, 4, 1, 0, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 1, 0, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 4, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 4, 0, 0, 0, 1, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 4, 0, 0, 0, 1, 0, 3, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-            {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 1},
-            {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 1},
-            {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 4, 4, 0, 0, 0, 0, 4, 4, 1},
-            {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0, 4, 1, 0, 0, 4, 4, 0, 0, 0, 0, 4, 4, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-        };
+    public TileManager(GamePanel gp) {
+        this.gp = gp;
         
+        // Load your TMX map file (make sure path matches where your level1.tmx is stored)
+        loadTmx("resources/complete_map/level1.tmx");
     }
-    
-    public void draw(Graphics2D g2){
-        for(int row = 0; row<maxScreenRow; row++){
-            for(int col = 0; col<maxScreenCol;col++){
-                int tileNum = levelMaps[currentLevel][row][col];
-                int x = col*tileSize;
-                int y = row*tileSize;
+
+    public void loadTmx(String tmxFilePath) {
+        try {
+            File fXmlFile = new File(tmxFilePath);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(fXmlFile);
+            doc.getDocumentElement().normalize();
+
+            // 1. Read Map Attributes
+            Element mapElement = doc.getDocumentElement();
+            this.mapWidth = Integer.parseInt(mapElement.getAttribute("width"));
+            this.mapHeight = Integer.parseInt(mapElement.getAttribute("height"));
+            this.tileWidth = Integer.parseInt(mapElement.getAttribute("tilewidth"));
+            this.tileHeight = Integer.parseInt(mapElement.getAttribute("tileheight"));
+
+            // 2. Parse Tilesets
+            NodeList tilesetNodes = doc.getElementsByTagName("tileset");
+            for (int i = 0; i < tilesetNodes.getLength(); i++) {
+                Element tsElement = (Element) tilesetNodes.item(i);
+                int firstGid = Integer.parseInt(tsElement.getAttribute("firstgid"));
+                String name = tsElement.getAttribute("name");
                 
-                if(tiles[tileNum]!=null&&tiles[tileNum].image !=null){
-                    g2.drawImage(tiles[tileNum].image, x, y,tileSize,tileSize,null);
+                Element imageElement = (Element) tsElement.getElementsByTagName("image").item(0);
+                String imageSource = imageElement.getAttribute("source"); // e.g., "walls_floor.png"
+                int tw = Integer.parseInt(tsElement.getAttribute("tilewidth"));
+                
+                // Load the corresponding tileset image (adjust path prefix as needed for your project structure)
+                BufferedImage sheetImage = ImageIO.read(new File("resources/complete_map/" + imageSource));
+                int columns = sheetImage.getWidth() / tw;
+
+                tilesetNames.add(name);
+                tilesetFirstGids.add(firstGid);
+                tilesetImages.add(sheetImage);
+                tilesetColumns.add(columns);
+            }
+
+            // 3. Parse Map Layers (CSV format)
+            NodeList layerNodes = doc.getElementsByTagName("layer");
+            for (int i = 0; i < layerNodes.getLength(); i++) {
+                Element layerElement = (Element) layerNodes.item(i);
+                Element dataElement = (Element) layerElement.getElementsByTagName("data").item(0);
+                
+                String csvData = dataElement.getTextContent().trim();
+                int[][] layerGrid = parseCsvData(csvData, mapWidth, mapHeight);
+                layers.add(layerGrid);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int[][] parseCsvData(String csvData, int width, int height) {
+        int[][] grid = new int[height][width];
+        String[] rows = csvData.split("\n");
+        for (int row = 0; row < rows.length; row++) {
+            String[] cols = rows[row].trim().split(",");
+            for (int col = 0; col < cols.length; col++) {
+                if (col < width && row < height) {
+                    grid[row][col] = Integer.parseInt(cols[col].trim());
                 }
             }
         }
+        return grid;
     }
-    public Tile[] getTiles(){
-        return tiles;
+
+    /**
+     * Finds which tileset owns the given global tile ID (gid) and crops the individual tile image.
+     */
+    public BufferedImage getTileImageByGid(int gid) {
+        if (gid == 0) return null; // 0 means empty tile
+
+        int bestIndex = -1;
+        int highestFirstGid = -1;
+
+        // Find the highest firstgid less than or equal to gid
+        for (int i = 0; i < tilesetFirstGids.size(); i++) {
+            int firstGid = tilesetFirstGids.get(i);
+            if (gid >= firstGid && firstGid > highestFirstGid) {
+                highestFirstGid = firstGid;
+                bestIndex = i;
+            }
+        }
+
+        if (bestIndex == -1) return null;
+
+        int firstGid = tilesetFirstGids.get(bestIndex);
+        int localId = gid - firstGid;
+        BufferedImage sheet = tilesetImages.get(bestIndex);
+        int columns = tilesetColumns.get(bestIndex);
+
+        int x = (localId % columns) * tileWidth;
+        int y = (localId / columns) * tileHeight;
+
+        // Safety check bounds before slicing subimage
+        if (x + tileWidth <= sheet.getWidth() && y + tileHeight <= sheet.getHeight()) {
+            return sheet.getSubimage(x, y, tileWidth, tileHeight);
+        }
+        return null;
     }
-    public int[][][] getLevelMaps(){
-        return levelMaps;
-    }
-    public int getCurrentLevel(){
-        return currentLevel;
-    }
-    public void setCurrentLevel(int level){
-        this.currentLevel = level;
+
+    /**
+     * Draws all layers and tiles onto the screen panel.
+     */
+    public void draw(Graphics2D g2) {
+        // Loop through every layer in the map
+        for (int[][] layerGrid : layers) {
+            for (int row = 0; row < mapHeight; row++) {
+                for (int col = 0; col < mapWidth; col++) {
+                    int gid = layerGrid[row][col];
+                    
+                    if (gid != 0) {
+                        BufferedImage tileImage = getTileImageByGid(gid);
+                        if (tileImage != null) {
+                            int screenX = col * gp.tileSize;
+                            int screenY = row * gp.tileSize;
+                            
+                            // Draws the tile scaled to your GamePanel's tileSize
+                            g2.drawImage(tileImage, screenX, screenY, gp.tileSize, gp.tileSize, null);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

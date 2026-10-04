@@ -17,32 +17,35 @@ import main.KeyHandler;
  * @author emarie
  */
 public class Player {
+
+    // Position & Speed
+    public double x, y;
+    public double speed;
     
-    public int x, y, speed;
     GamePanel gp;
     KeyHandler keyH;
-    
+
     // Animation & Sprite fields
     public BufferedImage up1, up2, down1, down2, left1, left2, right1, right2;
     public String direction;
     public int spriteCounter = 0;
     public int spriteNum = 1;
-    
+
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
         this.keyH = keyH;
-        
+
         setDefaultValues();
         getPlayerImage();
     }
-    
+
     public void setDefaultValues() {
         x = 100;
         y = 100;
-        speed = 2;
+        speed = 2.0; // Normalized speed for 60 FPS update loop
         direction = "down";
     }
-    
+
     public void getPlayerImage() {
         try {
             BufferedImage spriteSheet = ImageIO.read(getClass().getResourceAsStream("/complete_map/player.png"));
@@ -71,71 +74,91 @@ public class Player {
             e.printStackTrace();
         }
     }
-    
+
     public void update() {
-        if (keyH.upPressed == true || keyH.downPressed == true || 
-            keyH.leftPressed == true || keyH.rightPressed == true) {
-            
-            if (keyH.upPressed == true) {
-                direction = "up";
-                y -= speed;         
-            } else if (keyH.downPressed == true) {
-                direction = "down";
-                y += speed; 
-            } else if (keyH.leftPressed == true) {
-                direction = "left";
-                x -= speed;
-            } else if (keyH.rightPressed == true) {
-                direction = "right";
-                x += speed; 
-            }
-            
+        boolean isMoving = false;
+        
+        // Calculate velocity vectors to ensure smooth diagonal and cardinal movement
+        double dx = 0;
+        double dy = 0;
+
+        if (keyH.upPressed) {
+            direction = "up";
+            dy -= speed;
+            isMoving = true;
+        }
+        if (keyH.downPressed) {
+            direction = "down";
+            dy += speed;
+            isMoving = true;
+        }
+        if (keyH.leftPressed) {
+            direction = "left";
+            dx -= speed;
+            isMoving = true;
+        }
+        if (keyH.rightPressed) {
+            direction = "right";
+            dx += speed;
+            isMoving = true;
+        }
+
+        // Normalize speed when moving diagonally to prevent moving faster sideways
+        if (dx != 0 && dy != 0) {
+            dx *= 0.7071;
+            dy *= 0.7071;
+        }
+
+        // Apply calculated movement
+        x += dx;
+        y += dy;
+
+        // --- MAP BOUNDARY CONSTRAINTS ---
+        double minX = 0;
+        double minY = 0;
+        double maxX = gp.screenWidth - gp.tileSize;
+        double maxY = gp.screenHeight - gp.tileSize;
+
+        if (x < minX) x = minX;
+        if (x > maxX) x = maxX;
+        if (y < minY) y = minY;
+        if (y > maxY) y = maxY;
+
+        // Animate sprite only when actively moving
+        if (isMoving) {
             spriteCounter++;
-            if (spriteCounter > 12) {
-                if (spriteNum == 1) {
-                    spriteNum = 2;
-                } else if (spriteNum == 2) {
-                    spriteNum = 1;
-                }
+            if (spriteCounter > 10) { // Smooth cycle every 10 ticks
+                spriteNum = (spriteNum == 1) ? 2 : 1;
                 spriteCounter = 0;
             }
+        } else {
+            spriteNum = 1; // Reset to static posture when idle
         }
     }
-    
+
     public void draw(Graphics2D g2) {
         BufferedImage image = null;
-        
+
         switch (direction) {
-            case "up":
-                if (spriteNum == 1) { image = up1; }
-                if (spriteNum == 2) { image = up2; }
-                break;
-            case "down":
-                if (spriteNum == 1) { image = down1; }
-                if (spriteNum == 2) { image = down2; }
-                break;
-            case "left":
-                if (spriteNum == 1) { image = left1; }
-                if (spriteNum == 2) { image = left2; }
-                break;
-            case "right":
-                if (spriteNum == 1) { image = right1; }
-                if (spriteNum == 2) { image = right2; }
-                break;
+            case "up" -> image = (spriteNum == 1) ? up1 : up2;
+            case "down" -> image = (spriteNum == 1) ? down1 : down2;
+            case "left" -> image = (spriteNum == 1) ? left1 : left2;
+            case "right" -> image = (spriteNum == 1) ? right1 : right2;
         }
-        
+
+        int drawX = (int) Math.round(x);
+        int drawY = (int) Math.round(y);
+
         if (image != null) {
-            // Adjust this multiplier to taste (e.g., 1.5 or 2 for a larger hero character)
-            int drawSize = (int)(gp.tileSize * 2); 
+            int drawSize = gp.tileSize * 2;
             
-            // Center the scaled character nicely on the tile coordinates
-            int drawX = x - (drawSize - gp.tileSize) / 2;
-            int drawY = y - (drawSize - gp.tileSize); 
-            
-            g2.drawImage(image, drawX, drawY, drawSize, drawSize, null);
+            int screenX = drawX - (drawSize - gp.tileSize) / 2;
+            int screenY = drawY - (drawSize - gp.tileSize);
+
+            g2.drawImage(image, screenX, screenY, drawSize, drawSize, null);
         } else {
-            g2.setColor(Color.white);
-            g2.fillRect(x, y, gp.tileSize, gp.tileSize);
+            g2.setColor(Color.WHITE);
+            g2.fillRect(drawX, drawY, gp.tileSize, gp.tileSize);
         }
     }
 }

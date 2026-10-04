@@ -20,7 +20,7 @@ import tile.TileManager;
  */
 public class GamePanel extends JPanel implements Runnable {
 
-   // 1. TILE & SCREEN SETTINGS (16x16 scaled 2x = 32x32 px per tile)
+    // 1. TILE & SCREEN SETTINGS (16x16 scaled 2x = 32x32 px per tile)
     final int originalTileSize = 16;
     final int scale = 2;
     public final int tileSize = originalTileSize * scale; // 32x32 pixels
@@ -31,9 +31,9 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;   // 960 px
     public final int screenHeight = tileSize * maxScreenRow;  // 640 px
 
-    TileManager tileM = new TileManager(this);
+    // Engine Systems & Managers
     KeyHandler keyH = new KeyHandler();
-    
+    TileManager tileM = new TileManager(this);
     Player player = new Player(this, keyH);
 
     // 2. ENGINE SYSTEM
@@ -74,8 +74,11 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        // Player, doors, and map update logic will be hooked here
+        // Update player position and animations
         player.update();
+        
+        // If your TileManager has animated water tiles, update them here if needed:
+        // tileM.update();
     }
 
     @Override
@@ -83,11 +86,17 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        // Visual layers will be drawn here:
-        // 1. Vin's TileManager (map floor & walls)
-        // 2. Fil's Door
-        // 3. Ems's Player
-        player.draw(g2);
+        // 1. Draw the TileManager map (floors, decorative cracks, walls, water) first
+        if (tileM != null) {
+            tileM.draw(g2);
+        }
+
+        // 2. Draw doors or other background environmental objects here (Fil's section)
+        
+        // 3. Draw the player on top (Ems's section)
+        if (player != null) {
+            player.draw(g2);
+        }
 
         g2.dispose();
     }
