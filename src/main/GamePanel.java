@@ -30,6 +30,10 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenHeight = tileSize * maxScreenRow;  // 640 px
 
     KeyHandler keyH = new KeyHandler();
+    int playerX = 100;
+    int playerY = 100;  
+    int playerSpeed = 1;
+    
     // 2. ENGINE SYSTEM
     int FPS = 60;
     Thread gameThread;
@@ -40,7 +44,6 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.setFocusable(true);
         this.addKeyListener(keyH);
-        this.setFocusable(true);
     }
 
     public void startGameThread() {
@@ -70,6 +73,15 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         // Player, doors, and map update logic will be hooked here
+        if (keyH.upPressed == true) {
+            playerY -= playerSpeed;         
+        } else if (keyH.downPressed == true) {
+            playerY += playerSpeed; 
+        } else if (keyH.leftPressed == true) {
+            playerX -= playerSpeed;
+        } else if (keyH.downPressed == true) {
+            playerX += playerSpeed; 
+        }
     }
 
     @Override
@@ -81,6 +93,7 @@ public class GamePanel extends JPanel implements Runnable {
         // 1. Vin's TileManager (map floor & walls)
         // 2. Fil's Door
         // 3. Ems's Player
+        g2.fillRect(playerX, playerY, tileSize, tileSize);
 
         g2.dispose();
     }
