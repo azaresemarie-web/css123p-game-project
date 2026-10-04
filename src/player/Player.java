@@ -11,12 +11,15 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import main.GamePanel;
 import main.KeyHandler;
+import main.CollisionDetection;
 
 /**
  *
  * @author emarie
  */
 public class Player {
+    
+    public boolean collisionOn = false;
 
     // Position & Speed
     public double x, y;
@@ -109,6 +112,29 @@ public class Player {
             dy *= 0.7071;
         }
 
+        // ==========================================
+        // COLLISION CHECKING
+        // ==========================================
+        if (isMoving && gp.cChecker != null) {
+            // Check horizontal collision (X)
+            if (dx != 0) {
+                collisionOn = false;
+                gp.cChecker.checkTile(this, dx, 0);
+                if (collisionOn) {
+                    dx = 0; // Block X movement
+                }
+            }
+
+            // Check vertical collision (Y)
+            if (dy != 0) {
+                collisionOn = false;
+                gp.cChecker.checkTile(this, 0, dy);
+                if (collisionOn) {
+                    dy = 0; // Block Y movement
+                }
+            }
+        }
+        
         // Apply calculated movement
         x += dx;
         y += dy;
