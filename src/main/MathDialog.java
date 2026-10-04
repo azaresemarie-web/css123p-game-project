@@ -131,7 +131,14 @@ public class MathDialog extends JDialog {
         mainPanel.add(resetButton);
 
         add(mainPanel);
-
+        
+        // Inside MathDialog.java (at the end of constructor)
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowOpened(java.awt.event.WindowEvent e) {
+                answerField.requestFocusInWindow();
+            }
+        });
         // 5. Timer Logic
         countdownTimer = new Timer(1000, new ActionListener() {
             @Override
@@ -188,22 +195,22 @@ public class MathDialog extends JDialog {
 
     private void loadAssets(int btnWidth, int btnHeight) {
         try {
-            bgImage = ImageIO.read(getClass().getResourceAsStream("/assets/mathPanel.png"));
+            bgImage = ImageIO.read(getClass().getResourceAsStream("/buttons/mathPanel.png"));
 
-            BufferedImage submitImg = ImageIO.read(getClass().getResourceAsStream("/assets/submitBtn.png"));
+            BufferedImage submitImg = ImageIO.read(getClass().getResourceAsStream("/buttons/submitBtn.png"));
             if (submitImg != null) {
                 Image scaled = submitImg.getScaledInstance(btnWidth, btnHeight, Image.SCALE_SMOOTH);
                 submitIcon = new ImageIcon(scaled);
             }
 
-            BufferedImage resetImg = ImageIO.read(getClass().getResourceAsStream("/assets/resetBtn.png"));
+            BufferedImage resetImg = ImageIO.read(getClass().getResourceAsStream("/buttons/resetBtn.png"));
             if (resetImg != null) {
                 Image scaled = resetImg.getScaledInstance(btnWidth, btnHeight, Image.SCALE_SMOOTH);
                 resetIcon = new ImageIcon(scaled);
             }
 
         } catch (IOException | IllegalArgumentException e) {
-            System.err.println("Note: Check asset paths inside /assets/ directory.");
+            System.err.println("Note: Check asset paths inside /buttons/ directory.");
         }
     }
 

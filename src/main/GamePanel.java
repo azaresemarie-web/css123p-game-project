@@ -41,7 +41,7 @@ public class GamePanel extends JPanel implements Runnable {
     public SoundEffects se = new SoundEffects();
     
     // Engine Systems & Managers
-    KeyHandler keyH = new KeyHandler();
+    public KeyHandler keyH = new KeyHandler();
     public TileManager tileM = new TileManager(this);
     public CollisionDetection cChecker = new CollisionDetection(this);
     public DoorKey doorKey = new DoorKey(this);
@@ -50,7 +50,6 @@ public class GamePanel extends JPanel implements Runnable {
     volatile boolean resetRequested = false;
     Camera camera = new Camera(this);
     UIButtons uiButtons;
-
 
     volatile boolean nearDoor = false;    
     volatile boolean puzzleOpen = false;
