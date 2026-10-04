@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseAdapter;
 import player.Player;
 import tile.TileManager;
 
@@ -40,7 +41,8 @@ public class GamePanel extends JPanel implements Runnable {
     TileManager tileM = new TileManager(this);
     Player player = new Player(this, keyH);
     Camera camera = new Camera(this);
-
+    UIButtons uiButtons;
+    
     // 2. ENGINE SYSTEM
     int FPS = 60;
     Thread gameThread;
@@ -51,6 +53,12 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.setFocusable(true);
         this.addKeyListener(keyH);
+        
+        // --- UI & MOUSE LISTENERS ---
+        uiButtons = new UIButtons(screenWidth);
+        MouseAdapter mouseHandler = uiButtons.getMouseListener();
+        this.addMouseListener(mouseHandler);        // Enables clicks
+        this.addMouseMotionListener(mouseHandler);  // Enables hover effect
         
         //bg theme on loop
         playMusic(0);
@@ -168,6 +176,10 @@ public class GamePanel extends JPanel implements Runnable {
         
         if (camera != null) {
             camera.drawLighting(g2);
+        }
+        
+        if (uiButtons != null) {
+            uiButtons.draw(g2);
         }
         
         g2.dispose();
