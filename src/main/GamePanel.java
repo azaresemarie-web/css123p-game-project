@@ -29,6 +29,7 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;   // 960 px
     public final int screenHeight = tileSize * maxScreenRow;  // 640 px
 
+    KeyHandler keyH = new KeyHandler();
     // 2. ENGINE SYSTEM
     int FPS = 60;
     Thread gameThread;
@@ -37,6 +38,8 @@ public class GamePanel extends JPanel implements Runnable {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
+        this.setFocusable(true);
+        this.addKeyListener(keyH);
         this.setFocusable(true);
     }
 

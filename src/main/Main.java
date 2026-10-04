@@ -1,5 +1,6 @@
 
 import javax.swing.JFrame;
+import main.GamePanel;
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -16,7 +17,7 @@ public class Main {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
         window.setTitle("Formula Hero");
-
+        
         // Create Chloe's Game Engine Panel
         GamePanel gamePanel = new GamePanel(); 
         window.add(gamePanel);                
