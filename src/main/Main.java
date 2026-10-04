@@ -19,18 +19,13 @@ public class Main {
         window.setTitle("Formula Hero");
 
         // Create Chloe's Game Engine Panel
-//        GamePanel gamePanel = new GamePanel();
-//        window.add(gamePanel);
-//        window.pack();
         GamePanel gamePanel = new GamePanel(); 
         window.add(gamePanel);                
         window.pack();
 
         window.setLocationRelativeTo(null);
         window.setVisible(true);
-
-//         Start the continuous 60 FPS loop
-//        gamePanel.startGameThread();     
+ 
         // Start the continuous 60 FPS loop
         gamePanel.startGameThread();           
     }

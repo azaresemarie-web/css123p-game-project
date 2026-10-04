@@ -5,12 +5,14 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import main.GamePanel;
 
 /**
  *
  * @author Vincent
  */
 public class TileManager {
+  
     private final int tileSize = 48;
     private final int maxScreenCol = 30;
     private final int maxScreenRow = 20;
@@ -18,7 +20,9 @@ public class TileManager {
     private Tile[] tiles;
     private int [][][] levelMaps;
     private int currentLevel = 0;
-    public TileManager(){
+    
+    public TileManager(GamePanel gp){
+
         tiles = new Tile[10];
         loadTileImages();
         initializeLevelMaps();
@@ -26,8 +30,8 @@ public class TileManager {
 
     private void loadTileImages() {
         try{
-            BufferedImage mainTilesetImg = ImageIO.read(getClass().getResourceAsStream("/resources/walls_floor.png"));
-            BufferedImage objectsImg = ImageIO.read(getClass().getResourceAsStream("/resources/Objects.png"));
+            BufferedImage mainTilesetImg = ImageIO.read(getClass().getResourceAsStream("/complete_map/walls_floor.png"));
+            BufferedImage objectsImg = ImageIO.read(getClass().getResourceAsStream("/complete_map/Objects.png"));
             
             //floor
             tiles[0] = new Tile(mainTilesetImg.getSubimage(0, 96, 16, 16), false);

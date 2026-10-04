@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import player.Player;
+import tile.TileManager;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -30,10 +31,8 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;   // 960 px
     public final int screenHeight = tileSize * maxScreenRow;  // 640 px
 
+    TileManager tileM = new TileManager(this);
     KeyHandler keyH = new KeyHandler();
-    int playerX = 100;
-    int playerY = 100;  
-    int playerSpeed = 1;
     
     Player player = new Player(this, keyH);
 
@@ -76,15 +75,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         // Player, doors, and map update logic will be hooked here
-        if (keyH.upPressed == true) {
-            playerY -= playerSpeed;         
-        } else if (keyH.downPressed == true) {
-            playerY += playerSpeed; 
-        } else if (keyH.leftPressed == true) {
-            playerX -= playerSpeed;
-        } else if (keyH.rightPressed == true) {
-            playerX += playerSpeed; 
-        }
+        player.update();
     }
 
     @Override
@@ -96,8 +87,7 @@ public class GamePanel extends JPanel implements Runnable {
         // 1. Vin's TileManager (map floor & walls)
         // 2. Fil's Door
         // 3. Ems's Player
-        g2.setColor(Color.white);
-        g2.fillRect(playerX, playerY, tileSize, tileSize);
+        player.draw(g2);
 
         g2.dispose();
     }
