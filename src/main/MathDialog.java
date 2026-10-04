@@ -69,7 +69,7 @@ public class MathDialog extends JDialog {
 
         // --- Custom Visible Exit ("X") Button ---
         JButton closeButton = new JButton("X");
-        closeButton.setFont(new Font("Arial", Font.BOLD, 20));
+        closeButton.setFont(new Font("Krungthep", Font.BOLD, 20));
         closeButton.setForeground(Color.WHITE);
         closeButton.setBackground(new Color(180, 40, 40));
         closeButton.setFocusPainted(false);
@@ -82,28 +82,28 @@ public class MathDialog extends JDialog {
         // --- Timer Label (Pushed inside cream parchment area) ---
         timerLabel = new JLabel("Time: " + timeRemaining + "s", SwingConstants.CENTER);
         timerLabel.setForeground(new Color(180, 40, 40));
-        timerLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        timerLabel.setFont(new Font("Krungthep", Font.BOLD, 22));
         timerLabel.setBounds(100, 55, DIALOG_WIDTH - 200, 30);
         mainPanel.add(timerLabel);
 
         // --- Question Label ---
         questionLabel = new JLabel(currentQuestion.text, SwingConstants.CENTER);
         questionLabel.setForeground(new Color(60, 30, 15));
-        questionLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        questionLabel.setFont(new Font("Krungthep", Font.BOLD, 28));
         questionLabel.setBounds(80, 105, DIALOG_WIDTH - 160, 40);
         mainPanel.add(questionLabel);
 
         // --- Answer Input Text Field ---
         answerField = new JTextField();
         answerField.setHorizontalAlignment(JTextField.CENTER);
-        answerField.setFont(new Font("Arial", Font.BOLD, 24));
+        answerField.setFont(new Font("Krungthep", Font.BOLD, 24));
         answerField.setBounds((DIALOG_WIDTH - 300) / 2, 165, 300, 50);
         answerField.setBorder(BorderFactory.createLineBorder(new Color(120, 60, 20), 3));
         mainPanel.add(answerField);
 
         // --- In-Panel Feedback / Error Message ---
         feedbackLabel = new JLabel("", SwingConstants.CENTER);
-        feedbackLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        feedbackLabel.setFont(new Font("Krungthep", Font.BOLD, 16));
         feedbackLabel.setForeground(new Color(200, 30, 30));
         feedbackLabel.setBounds(60, 230, DIALOG_WIDTH - 120, 30);
         mainPanel.add(feedbackLabel);
