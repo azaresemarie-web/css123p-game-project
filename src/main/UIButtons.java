@@ -30,7 +30,7 @@ public class UIButtons {
     private final int rowGap = 15;
 
     private int heartCount = 3;
-    private int keyCount = 3;
+    private int keyCount = 0;
 
     // --- Right Side UI (Custom Icon Buttons) ---
     private BufferedImage restartImage;
