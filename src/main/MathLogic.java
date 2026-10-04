@@ -4,7 +4,6 @@ import java.util.Random;
 
 public class MathLogic {
     
-    // This is the inner class your screenshot is looking for
     public static class Question {
         public String text;
         public String answer;
@@ -41,7 +40,6 @@ public class MathLogic {
         new Question("Find y' at x=2 for y = x^3 - 4x + 2", "8", 480)
     };
 
-    // This is the method your screenshot is saying is missing
     public Question getRandomQuestion(int currentLevel) {
         Random rand = new Random();
         int index = rand.nextInt(5);

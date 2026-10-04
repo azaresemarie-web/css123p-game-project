@@ -18,18 +18,15 @@ public class MathDialog extends JDialog {
     private MathLogic.Question currentQuestion;
     private final GamePanel gp;
 
-    // Assets
     private BufferedImage bgImage;
     private ImageIcon submitIcon;
     private ImageIcon resetIcon;
 
-    // UI Components
     private JLabel timerLabel;
     private JLabel questionLabel;
     private JTextField answerField;
     private JLabel feedbackLabel;
 
-    // Expanded Window Dimensions
     private static final int DIALOG_WIDTH = 650;
     private static final int DIALOG_HEIGHT = 450;
 
@@ -37,21 +34,17 @@ public class MathDialog extends JDialog {
         super(parentFrame, "Door Lock Puzzle", true);
         this.gp = gp;
 
-        // 1. Load Math Question
         MathLogic logic = new MathLogic();
         currentQuestion = logic.getRandomQuestion(currentLevel);
         timeRemaining = currentQuestion.timeLimitSeconds;
 
-        // 2. Load Button Assets with Proportional Scaling
         loadAssets(150, 55);
 
-        // 3. Configure Dialog Window
         setUndecorated(true);
-        setBackground(new Color(0, 0, 0, 0)); // Transparent around rounded pixel border
+        setBackground(new Color(0, 0, 0, 0));
         setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
         setLocationRelativeTo(parentFrame);
 
-        // 4. Main Panel
         JPanel mainPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -67,7 +60,6 @@ public class MathDialog extends JDialog {
         mainPanel.setOpaque(false);
         mainPanel.setLayout(null);
 
-        // --- Custom Visible Exit ("X") Button ---
         JButton closeButton = new JButton("X");
         closeButton.setFont(new Font("Krungthep", Font.BOLD, 20));
         closeButton.setForeground(Color.WHITE);
@@ -75,25 +67,22 @@ public class MathDialog extends JDialog {
         closeButton.setFocusPainted(false);
         closeButton.setBorder(BorderFactory.createLineBorder(new Color(90, 20, 20), 2));
         closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        closeButton.setBounds(DIALOG_WIDTH - 90, 45, 40, 40); // Shifted inside inner area
+        closeButton.setBounds(DIALOG_WIDTH - 90, 45, 40, 40);
         closeButton.addActionListener(e -> closeDialog());
         mainPanel.add(closeButton);
 
-        // --- Timer Label (Pushed inside cream parchment area) ---
         timerLabel = new JLabel("Time: " + timeRemaining + "s", SwingConstants.CENTER);
         timerLabel.setForeground(new Color(180, 40, 40));
         timerLabel.setFont(new Font("Krungthep", Font.BOLD, 22));
         timerLabel.setBounds(100, 55, DIALOG_WIDTH - 200, 30);
         mainPanel.add(timerLabel);
 
-        // --- Question Label ---
         questionLabel = new JLabel(currentQuestion.text, SwingConstants.CENTER);
         questionLabel.setForeground(new Color(60, 30, 15));
         questionLabel.setFont(new Font("Krungthep", Font.BOLD, 28));
         questionLabel.setBounds(80, 105, DIALOG_WIDTH - 160, 40);
         mainPanel.add(questionLabel);
 
-        // --- Answer Input Text Field ---
         answerField = new JTextField();
         answerField.setHorizontalAlignment(JTextField.CENTER);
         answerField.setFont(new Font("Krungthep", Font.BOLD, 24));
@@ -101,14 +90,12 @@ public class MathDialog extends JDialog {
         answerField.setBorder(BorderFactory.createLineBorder(new Color(120, 60, 20), 3));
         mainPanel.add(answerField);
 
-        // --- In-Panel Feedback / Error Message ---
         feedbackLabel = new JLabel("", SwingConstants.CENTER);
         feedbackLabel.setFont(new Font("Krungthep", Font.BOLD, 16));
         feedbackLabel.setForeground(new Color(200, 30, 30));
         feedbackLabel.setBounds(60, 230, DIALOG_WIDTH - 120, 30);
         mainPanel.add(feedbackLabel);
 
-        // --- SUBMIT Button ---
         JButton submitButton = new JButton();
         if (submitIcon != null) {
             submitButton.setIcon(submitIcon);
@@ -119,7 +106,6 @@ public class MathDialog extends JDialog {
         submitButton.setBounds((DIALOG_WIDTH / 2) - 165, 285, 150, 55);
         mainPanel.add(submitButton);
 
-        // --- RESET Button ---
         JButton resetButton = new JButton();
         if (resetIcon != null) {
             resetButton.setIcon(resetIcon);
@@ -132,14 +118,13 @@ public class MathDialog extends JDialog {
 
         add(mainPanel);
         
-        // Inside MathDialog.java (at the end of constructor)
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowOpened(java.awt.event.WindowEvent e) {
                 answerField.requestFocusInWindow();
             }
         });
-        // 5. Timer Logic
+
         countdownTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -157,7 +142,6 @@ public class MathDialog extends JDialog {
         });
         countdownTimer.start();
 
-        // 6. Event Handlers
         submitButton.addActionListener(e -> checkAnswer(doorKey, player, targetRow, targetCol));
         answerField.addActionListener(e -> checkAnswer(doorKey, player, targetRow, targetCol));
 
@@ -166,7 +150,6 @@ public class MathDialog extends JDialog {
             answerField.requestFocus();
         });
 
-        // Close when pressing ESC
         answerField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {

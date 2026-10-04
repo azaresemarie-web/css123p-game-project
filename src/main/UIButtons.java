@@ -13,13 +13,13 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+
 /**
  *
  * @author emarie
  */
 public class UIButtons {
 
-    // --- Left Side UI (Hearts & Keys) ---
     private BufferedImage heartImage;
     private BufferedImage keyImage;
 
@@ -32,22 +32,22 @@ public class UIButtons {
     private int heartCount = 3;
     private int keyCount = 0;
 
-    // --- Right Side UI (Custom Icon Buttons) ---
     private BufferedImage restartImage;
     private BufferedImage settingsImage;
 
-    private final int btnSize = 32;       // Pixel size for restart/settings icons
+    private final int btnSize = 32;
     private final int rightMargin = 20;
     private final int topMargin = 20;
     private final int btnSpacing = 15;
 
-    // Hitboxes for click detection
     private Rectangle restartHitbox;
     private Rectangle settingsHitbox;
 
-    // Hover flags for visual feedback
     private boolean isRestartHovered = false;
     private boolean isSettingsHovered = false;
+    
+    public Runnable onSettingsClick;
+
 
     public UIButtons(int screenWidth) {
         loadImages();
@@ -56,11 +56,9 @@ public class UIButtons {
 
     private void loadImages() {
         try {
-            // Load heart and key icons
             heartImage = ImageIO.read(getClass().getResourceAsStream("/buttons/heartStatus.png"));
             keyImage   = ImageIO.read(getClass().getResourceAsStream("/buttons/keySymbol.png"));
             
-            // Load custom button PNG assets
             restartImage  = ImageIO.read(getClass().getResourceAsStream("/buttons/restartBtn.png"));
             settingsImage = ImageIO.read(getClass().getResourceAsStream("/buttons/settingsBtn.png"));
         } catch (IOException | IllegalArgumentException e) {
@@ -68,24 +66,15 @@ public class UIButtons {
         }
     }
 
-    /**
-     * Positions click hitboxes for the top-right icons based on screen width.
-     */
     public void setupRightButtons(int screenWidth) {
-        int settingsX = screenWidth - rightMargin - btnSize;          // Rightmost icon (Settings)
-        int restartX  = settingsX - btnSpacing - btnSize;             // Left of Settings (Restart)
+        int settingsX = screenWidth - rightMargin - btnSize;
+        int restartX  = settingsX - btnSpacing - btnSize;
 
         settingsHitbox = new Rectangle(settingsX, topMargin, btnSize, btnSize);
         restartHitbox  = new Rectangle(restartX, topMargin, btnSize, btnSize);
     }
 
-    /**
-     * Renders all HUD icons to the screen.
-     */
     public void draw(Graphics2D g2) {
-        // -------------------------------------------------------------
-        // 1. DRAW TOP-LEFT: HEARTS & KEYS
-        // -------------------------------------------------------------
         int currentX = leftStartX;
         int currentY = leftStartY;
 
@@ -112,49 +101,36 @@ public class UIButtons {
             currentX += iconSize + spacing;
         }
 
-        // -------------------------------------------------------------
-        // 2. DRAW TOP-RIGHT: RESTART & SETTINGS ICON BUTTONS
-        // -------------------------------------------------------------
         drawIconButton(g2, restartImage, restartHitbox, isRestartHovered, Color.ORANGE);
         drawIconButton(g2, settingsImage, settingsHitbox, isSettingsHovered, Color.LIGHT_GRAY);
     }
 
-    /**
-     * Helper to draw individual custom PNG buttons with a hover highlight effect.
-     */
     private void drawIconButton(Graphics2D g2, BufferedImage img, Rectangle bounds, boolean isHovered, Color fallbackColor) {
         if (bounds == null) return;
 
         if (img != null) {
             if (isHovered) {
-                // Slightly dim/highlight icon when mouse hovers over it
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-                g2.drawImage(img, bounds.x - 2, bounds.y - 2, bounds.width + 4, bounds.height + 4, null); // Enlarge slightly
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f)); // Reset opacity
+                g2.drawImage(img, bounds.x - 2, bounds.y - 2, bounds.width + 4, bounds.height + 4, null);
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
             } else {
                 g2.drawImage(img, bounds.x, bounds.y, bounds.width, bounds.height, null);
             }
         } else {
-            // Fallback square if PNG file is not found
             g2.setColor(fallbackColor);
             g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
         }
     }
 
-    // -------------------------------------------------------------
-    // 3. MOUSE INTERACTION LISTENER
-    // -------------------------------------------------------------
     public MouseAdapter getMouseListener() {
         return new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (restartHitbox != null && restartHitbox.contains(e.getPoint())) {
                     System.out.println("Restart Icon Clicked!");
-                    // TODO: Execute game restart logic here
                 } 
                 else if (settingsHitbox != null && settingsHitbox.contains(e.getPoint())) {
                     System.out.println("Settings Icon Clicked!");
-                    // TODO: Execute settings menu logic here
                 }
             }
 
@@ -166,7 +142,6 @@ public class UIButtons {
         };
     }
 
-    // --- Getters & Setters ---
     public void setHeartCount(int count) { this.heartCount = count; }
     public void setKeyCount(int count) { this.keyCount = count; }
 }

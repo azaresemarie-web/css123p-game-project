@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package player;
 
 import java.awt.Color;
@@ -13,22 +9,16 @@ import main.GamePanel;
 import main.KeyHandler;
 import main.CollisionDetection;
 
-/**
- *
- * @author emarie
- */
 public class Player {
     
     public boolean collisionOn = false;
 
-    // Position & Speed
     public double x, y;
     public double speed;
     
     GamePanel gp;
     KeyHandler keyH;
 
-    // Animation & Sprite fields
     public BufferedImage up1, up2, down1, down2, left1, left2, right1, right2;
     public String direction;
     public int spriteCounter = 0;
@@ -45,7 +35,7 @@ public class Player {
     public void setDefaultValues() {
         x = 100;
         y = 100;
-        speed = 2.0; // Normalized speed for 60 FPS update loop
+        speed = 2.0;
         direction = "down";
     }
 
@@ -57,19 +47,15 @@ public class Player {
                 int width = 32;
                 int height = 32;
 
-                // Row 0: Down (columns 0 and 1)
                 down1 = spriteSheet.getSubimage(0 * width, 0 * height, width, height);
                 down2 = spriteSheet.getSubimage(1 * width, 0 * height, width, height);
 
-                // Row 1: Left
                 left1 = spriteSheet.getSubimage(0 * width, 1 * height, width, height);
                 left2 = spriteSheet.getSubimage(1 * width, 1 * height, width, height);
 
-                // Row 2: Right
                 right1 = spriteSheet.getSubimage(0 * width, 2 * height, width, height);
                 right2 = spriteSheet.getSubimage(1 * width, 2 * height, width, height);
 
-                // Row 3: Up
                 up1 = spriteSheet.getSubimage(0 * width, 3 * height, width, height);
                 up2 = spriteSheet.getSubimage(1 * width, 3 * height, width, height);
             }
@@ -81,7 +67,6 @@ public class Player {
     public void update() {
         boolean isMoving = false;
         
-        // Calculate velocity vectors to ensure smooth diagonal and cardinal movement
         double dx = 0;
         double dy = 0;
 
@@ -106,40 +91,32 @@ public class Player {
             isMoving = true;
         }
 
-        // Normalize speed when moving diagonally to prevent moving faster sideways
         if (dx != 0 && dy != 0) {
             dx *= 0.7071;
             dy *= 0.7071;
         }
 
-        // ==========================================
-        // COLLISION CHECKING
-        // ==========================================
         if (isMoving && gp.cChecker != null) {
-            // Check horizontal collision (X)
             if (dx != 0) {
                 collisionOn = false;
                 gp.cChecker.checkTile(this, dx, 0);
                 if (collisionOn) {
-                    dx = 0; // Block X movement
+                    dx = 0; 
                 }
             }
 
-            // Check vertical collision (Y)
             if (dy != 0) {
                 collisionOn = false;
                 gp.cChecker.checkTile(this, 0, dy);
                 if (collisionOn) {
-                    dy = 0; // Block Y movement
+                    dy = 0; 
                 }
             }
         }
-        
-        // Apply calculated movement
+      
         x += dx;
         y += dy;
 
-        // --- MAP BOUNDARY CONSTRAINTS ---
         double minX = 0;
         double minY = 0;
         double maxX = gp.screenWidth - gp.tileSize;
@@ -150,15 +127,14 @@ public class Player {
         if (y < minY) y = minY;
         if (y > maxY) y = maxY;
 
-        // Animate sprite only when actively moving
         if (isMoving) {
             spriteCounter++;
-            if (spriteCounter > 10) { // Smooth cycle every 10 ticks
+            if (spriteCounter > 10) { 
                 spriteNum = (spriteNum == 1) ? 2 : 1;
                 spriteCounter = 0;
             }
         } else {
-            spriteNum = 1; // Reset to static posture when idle
+            spriteNum = 1; 
         }
     }
 

@@ -14,7 +14,6 @@ public class DoorKey {
     GamePanel gp;
     public int keysCollected = 0;
 
-    // Detection flag to draw the floating prompt
     public boolean playerNearDoor = false;
     private int[] currentNearbyDoor = null;
     
@@ -36,8 +35,10 @@ public class DoorKey {
     }
 
     private int getDoorLayer() {
+        if (gp.tileM == null) return -1;
         for (int i = 0; i < gp.tileM.getLayerCount(); i++) {
-            if (gp.tileM.getLayerName(i).toLowerCase().startsWith("doorkey")) return i;
+            String name = gp.tileM.getLayerName(i).toLowerCase();
+            if (name.contains("door") || name.contains("doorkey")) return i;
         }
         return -1;
     }
@@ -48,8 +49,8 @@ public class DoorKey {
         currentNearbyDoor = findNearbyDoor(player);
         playerNearDoor = (currentNearbyDoor != null);
         
-        if (playerNearDoor && gp.keyH.ePressed) {
-            gp.keyH.ePressed = false; // Reset key
+        if (playerNearDoor && gp.keyH != null && gp.keyH.ePressed) {
+            gp.keyH.ePressed = false; 
             interact(player, currentNearbyDoor);
         }
     }
@@ -94,9 +95,12 @@ public class DoorKey {
             return;
         }
         JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(gp);
-        MathDialog puzzleWindow = new MathDialog(parentFrame, gp, this, player,
-                door[0], door[1], gp.tileM.getCurrentLevel());
-        puzzleWindow.setVisible(true);
+        
+        SwingUtilities.invokeLater(() -> {
+            MathDialog puzzleWindow = new MathDialog(parentFrame, gp, this, player,
+                    door[0], door[1], gp.tileM.getCurrentLevel());
+            puzzleWindow.setVisible(true);
+        });
     }
 
     public void draw(Graphics2D g2) {
@@ -105,16 +109,20 @@ public class DoorKey {
             int doorY = currentNearbyDoor[0] * gp.tileSize;
 
             String prompt = "E to Enter";
-            g2.setFont(new Font("Krungthep", Font.BOLD, 13));
+            g2.setFont(new Font("Monospaced", Font.BOLD, 14));
             FontMetrics fm = g2.getFontMetrics();
+            
             int promptX = doorX + (gp.tileSize / 2) - (fm.stringWidth(prompt) / 2);
-            int promptY = doorY - 8;
+            int promptY = doorY - 10;
 
-            // Black outline / shadow
-            g2.setColor(Color.BLACK);
-            g2.drawString(prompt, promptX + 1, promptY + 1);
+            // 1. Black outline / drop shadow
+            //g2.setColor(Color.BLACK);
+            /*g2.drawString(prompt, promptX + 1, promptY + 1);
+            g2.drawString(prompt, promptX - 1, promptY - 1);
+            g2.drawString(prompt, promptX + 1, promptY - 1);
+            g2.drawString(prompt, promptX - 1, promptY + 1);*/
 
-            // Retro golden yellow text
+            // 2. Retro golden yellow text
             g2.setColor(new Color(255, 245, 170));
             g2.drawString(prompt, promptX, promptY);
         }
@@ -122,16 +130,18 @@ public class DoorKey {
     
     public void unlockDoor(int targetRow, int targetCol) {
         int layer = getDoorLayer();
-        if (layer >= 0) removeDoorTiles(layer, targetRow, targetCol);
-        if (keysCollected > 0) keysCollected--;
-    }
+        if (layer < 0) return;
 
-    private void removeDoorTiles(int layer, int row, int col) {
-        if (!isDoorGid(gp.tileM.getGid(layer, row, col))) return;
-        gp.tileM.setGid(layer, row, col, 0);
-        removeDoorTiles(layer, row - 1, col);
-        removeDoorTiles(layer, row + 1, col);
-        removeDoorTiles(layer, row, col - 1);
-        removeDoorTiles(layer, row, col + 1);
+        for (int r = targetRow - 2; r <= targetRow + 2; r++) {
+            for (int c = targetCol - 2; c <= targetCol + 2; c++) {
+                if (isDoorGid(gp.tileM.getGid(layer, r, c))) {
+                    gp.tileM.setGid(layer, r, c, 0);
+                }
+            }
+        }
+
+        if (keysCollected > 0) {
+            keysCollected--;
+        }
     }
 }
